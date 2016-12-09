@@ -128,11 +128,12 @@ public class SootToGraph {
 					continue;
 				}
 
+				System.out.println("Inlining for " +entry.getKey().getName());
 				DfgBuilder inlinedGraph = entry.getValue().duplicate();
 				Set<SootMethod> inlinedAlready = new HashSet<SootMethod>();
 				inlinedAlready.add(entry.getKey());
-				inlinedGraph.inlineLocalCalls(dfgs, inlinedAlready);
-
+				inlinedGraph.inlineLocalCalls(dfgs, inlinedAlready, 3);
+				System.out.println("Inlining finished");
 				if (Options.v().allEntry) {
 					methodGraphs.put(entry.getKey().getSignature(), inlinedGraph);
 				} else {

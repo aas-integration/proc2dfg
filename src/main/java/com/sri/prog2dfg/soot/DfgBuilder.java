@@ -67,7 +67,7 @@ public class DfgBuilder extends ForwardFlowAnalysis<Unit, Map<Value, Node>> {
 	private static final String baseLabel = "base";
 	private static final String argLabel = "$ARG";
 
-	private final Body body;
+//	private final Body body;
 	private final List<Node> parameterNodes;
 	private Node returnNode, thisNode;
 
@@ -96,7 +96,7 @@ public class DfgBuilder extends ForwardFlowAnalysis<Unit, Map<Value, Node>> {
 			Node thisNode, SootMethod sm, Map<SootField, Node> fieldMap) {
 		super(new CompleteUnitGraph(sm.getActiveBody()));
 		this.method = sm;
-		this.body = sm.getActiveBody();
+//		this.body = sm.getActiveBody();
 		Map<Node, Node> cloneMap = new HashMap<Node, Node>();
 		for (Node n : allNodes) {
 			this.allNodes.add(duplicateNode(cloneMap, n));
@@ -240,7 +240,7 @@ public class DfgBuilder extends ForwardFlowAnalysis<Unit, Map<Value, Node>> {
 
 	public DfgBuilder(Body body, UnitGraph ug) {
 		super(ug);
-		this.body = body;
+//		this.body = body;
 		method = body.getMethod();
 		parameterNodes = new ArrayList<Node>(method.getParameterCount());
 		for (int i = 0; i < method.getParameterCount(); i++) {
@@ -261,8 +261,8 @@ public class DfgBuilder extends ForwardFlowAnalysis<Unit, Map<Value, Node>> {
 	public DfgBuilder(Body body) {
 		this(body, new CompleteUnitGraph(body));
 	}
-
-	public void inlineLocalCalls(Map<SootMethod, DfgBuilder> dfgs, Set<SootMethod> alreadyInlined) {
+	
+	public void inlineLocalCalls(Map<SootMethod, DfgBuilder> dfgs, Set<SootMethod> alreadyInlined, int depth) {
 		List<MethodNode> worklist = new LinkedList<MethodNode>();
 		// if (this.method.isStatic()) {
 		// System.err.println("adhfjksdf");
@@ -286,21 +286,28 @@ public class DfgBuilder extends ForwardFlowAnalysis<Unit, Map<Value, Node>> {
 			}
 		}
 		for (MethodNode mn : worklist) {
-			inlineMethod(dfgs, mn, alreadyInlined);
+			inlineMethod(dfgs, mn, alreadyInlined, depth-1);
 		}
 	}
 
-	private void inlineMethod(Map<SootMethod, DfgBuilder> dfgs, MethodNode mn, Set<SootMethod> alreadyInlined) {
+	private void inlineMethod(Map<SootMethod, DfgBuilder> dfgs, MethodNode mn, Set<SootMethod> alreadyInlined, int depth) {
 		// create a copy of the graph that should be inlined.
-		if (!dfgs.containsKey(mn.sootMethod)) {
-			System.err.println("Cannot inline " + mn.sootMethod.getSignature());
+		alreadyInlined.add(mn.sootMethod);
+		if (!dfgs.containsKey(mn.sootMethod) || depth <= 0) {
+//			System.err.println("Cannot inline " + mn.sootMethod.getSignature());
 			return;
 		}
+		
+		if (outgoingEdges.containsKey(mn) && !outgoingEdges.get(mn).isEmpty() && outgoingEdges.get(mn).size() > 1) {
+//			System.err.println("Dont inline this.");
+			return ;
+		}
+		
 		DfgBuilder toInline = dfgs.get(mn.sootMethod).duplicate();
 		Set<SootMethod> inl = new HashSet<SootMethod>(alreadyInlined);
-		inl.add(mn.sootMethod);
+//		inl.add(mn.sootMethod);
 		// first recur to inline the calls in toInline.
-		toInline.inlineLocalCalls(dfgs, inl);
+		toInline.inlineLocalCalls(dfgs, inl, depth);
 
 		// System.err.println("Maybe we should inline " +
 		// mn.sootMethod.getSignature());
