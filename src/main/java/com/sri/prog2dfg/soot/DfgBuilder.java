@@ -24,7 +24,7 @@ import com.sri.prog2dfg.dfg.Edge;
 import com.sri.prog2dfg.dfg.MethodNode;
 import com.sri.prog2dfg.dfg.Node;
 import com.sri.prog2dfg.dfg.VariableNode;
-import com.sun.javafx.binding.StringConstant;
+
 
 import soot.ArrayType;
 import soot.Body;
@@ -55,6 +55,7 @@ import soot.jimple.ParameterRef;
 import soot.jimple.ReturnStmt;
 import soot.jimple.StaticFieldRef;
 import soot.jimple.Stmt;
+import soot.jimple.StringConstant;
 import soot.jimple.ThisRef;
 import soot.jimple.ThrowStmt;
 import soot.jimple.UnopExpr;
